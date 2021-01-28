@@ -10,8 +10,7 @@ import (
 	"time"
 )
 
-//1. 用 Go 实现一个 tcp server ，用两个 goroutine 读写 conn，两个 goroutine 通过 chan 可以传递 message，能够正确退出
-// 生成用户 ID
+
 var (
 	globalID int
 	idLocker sync.Mutex
@@ -47,13 +46,12 @@ func handleConn(conn net.Conn) {
 		MessageChannel: make(chan string, 8),
 	}
 
-	//启动写 conn 的协程
 	go sendMessage(conn, user.MessageChannel)
 
 	input := bufio.NewScanner(conn)
 	for input.Scan() {
 		fmt.Println(strconv.Itoa(user.ID) + ":" + input.Text())
-		//通过 chan 可以传递 message，客户端发来什么消息就回什么消息
+		
 		user.MessageChannel <- input.Text()
 	}
 
@@ -74,7 +72,7 @@ func main() {
 			log.Println(err)
 			continue
 		}
-		//启动读 conn 的协程
+		
 		go handleConn(conn)
 	}
 }
